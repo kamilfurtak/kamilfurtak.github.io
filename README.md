@@ -10,5 +10,7 @@ the source publisher replaces this output on deployment.
 
 The private source owner is `portfolio-lab-monorepo/cv/furtak-dev`.
 Its publisher builds and validates indexability before updating this repository.
+Automated publication uses a deploy key scoped to this repository, rather than
+a personal account token.
 Source code for the public Angular workbench lives separately in
 [angular-ui-modernization-case-study](https://github.com/kamilfurtak/angular-ui-modernization-case-study).
