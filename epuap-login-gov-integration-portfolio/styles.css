@@ -215,7 +215,7 @@ a {
 .section-kicker,
 .stack-label {
   margin: 0;
-  color: #177d68;
+  color: #126653;
   font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: 0;
@@ -998,7 +998,11 @@ h3 {
   }
 
   .hero-copy {
-    padding-top: 74px;
+    padding-top: 44px;
+  }
+
+  .hero-branding {
+    display: none;
   }
 
   .hero-media {
