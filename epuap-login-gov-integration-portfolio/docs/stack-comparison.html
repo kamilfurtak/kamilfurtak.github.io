@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Stack Comparison | ePUAP / login.gov Integration Portfolio</title>
+    <meta
+      name="description"
+      content="Technology comparison for an identity integration portfolio case study."
+    />
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark" aria-hidden="true">KF</span>
+        <span>Integration Portfolio</span>
+      </a>
+      <nav aria-label="Case study navigation">
+        <a href="../index.html">Overview</a>
+        <a href="architecture.html">Architecture</a>
+      </nav>
+    </header>
+
+    <main class="doc-page">
+      <section class="doc-hero">
+        <p class="section-kicker">Stack comparison</p>
+        <h1>Different runtimes, one integration problem.</h1>
+        <p>
+          The point is not that one backend stack wins everywhere. The point is
+          that identity integration work often crosses several ecosystems.
+        </p>
+      </section>
+
+      <section class="doc-section">
+        <div class="comparison-table" role="table" aria-label="Technology comparison">
+          <div role="row">
+            <strong role="columnheader">Track</strong>
+            <strong role="columnheader">Why it matters</strong>
+            <strong role="columnheader">Portfolio signal</strong>
+          </div>
+          <div role="row">
+            <span>Angular / TypeScript</span>
+            <span>Visible browser harness for redirects, callback state, typed API responses and protocol handoffs.</span>
+            <span>Frontend expertise connected to identity and backend integration.</span>
+          </div>
+          <div role="row">
+            <span>NestJS / Node.js</span>
+            <span>TypeScript API lane for DTO contracts, Swagger visibility and SAML-style endpoint experiments.</span>
+            <span>Backend API literacy close to the frontend type system.</span>
+          </div>
+          <div role="row">
+            <span>ASP.NET Core / .NET 8</span>
+            <span>Typed controllers, OpenAPI output, request/response models and certificate-aware helper placement.</span>
+            <span>C# service design awareness beyond frontend implementation.</span>
+          </div>
+          <div role="row">
+            <span>Java / Spring</span>
+            <span>SOAP/WSDL clients, CXF/JAX-WS generation, XML security and OpenSAML-oriented flows.</span>
+            <span>Ability to work with older enterprise integration stacks.</span>
+          </div>
+          <div role="row">
+            <span>SAML / certificates / XML</span>
+            <span>AuthnRequest, callback/artifact handling, signing, canonicalization and protocol validation complexity.</span>
+            <span>Security-aware debugging and protocol literacy.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="doc-section quote-panel">
+        <h2>How the tracks complement each other</h2>
+        <p>
+          Angular makes browser-visible behavior testable, NestJS keeps a
+          TypeScript-oriented API path close to the frontend, .NET provides a
+          strongly typed backend and OpenAPI workflow, and Java remains important
+          for SOAP/WSDL, CXF and XML security ecosystems. The case study is about
+          evaluating those layers together instead of treating the frontend
+          as isolated from the integration stack.
+        </p>
+      </section>
+
+      <section class="doc-section doc-grid">
+        <article>
+          <h2>Where Angular still matters</h2>
+          <p>
+            The browser is where redirects, form posts, callback timing and user
+            visible errors meet. The Angular layer is therefore used to inspect
+            behavior across backend variants, not merely to render a polished UI.
+          </p>
+        </article>
+        <article>
+          <h2>Where backend choice matters</h2>
+          <p>
+            Library maturity, generated-client workflows, XML security support,
+            OpenAPI output and debugging ergonomics differ across Node, .NET and
+            Java. Comparing them makes the integration work more concrete.
+          </p>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,4 @@
+# Test-only dependencies. No runtime dependencies are added to the plugin.
+fastapi==0.115.12
+httpx==0.28.1
+prompt-toolkit==3.0.51

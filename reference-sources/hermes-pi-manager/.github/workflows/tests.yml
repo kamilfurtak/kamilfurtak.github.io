@@ -1,0 +1,76 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unittest:
+    name: Unit and fixture tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # git identity: the touched-file collection under test shells out to
+      # git, and `git commit` refuses to run without one on a fresh runner.
+      - name: Configure git for the fixtures
+        run: |
+          git config --global user.email "ci@example.invalid"
+          git config --global user.name "CI"
+
+      # No third-party dependencies by design: the plugin runs inside the
+      # Hermes process and must not drag its own runtime in. Each module is
+      # run separately because the suite shares module-level singletons that
+      # a single discover() run would carry between files.
+      # Real Hermes loader checks are a separate opt-in host gate, not a
+      # skipped test that makes this dependency-free job look integrated.
+      - name: Run unit and fixture suite (no Hermes host)
+        run: python scripts/run-tests.py --suite unit
+
+  desktop:
+    name: Desktop renderer tests (Node 22)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - name: Install locked renderer test dependencies
+        run: npm ci
+        working-directory: desktop
+      - name: Run Desktop renderer tests
+        run: npm test
+        working-directory: desktop
+
+  contract:
+    name: Dependency contracts (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install -r tests/requirements-contract.txt
+      - run: python scripts/run-tests.py --suite contract

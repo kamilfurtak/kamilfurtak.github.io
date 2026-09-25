@@ -1,0 +1,16 @@
+node_modules/
+.DS_Store
+*.tgz
+*.sha256
+*.log
+.env
+.env.*
+!.env.example
+bridge.config.json
+models.generated.json
+*.backup
+*.backup-*
+*.before-local-model-bridge-*
+*.local-model-bridge.json
+.runtime/
+coverage/

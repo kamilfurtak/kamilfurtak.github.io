@@ -1,0 +1,354 @@
+"""Disposable Pi activity views; never task authority.
+
+The RPC reader only updates memory. One coalescing writer publishes private,
+atomic snapshots for ``hermes serve`` and an append-only CLI transcript.
+No model calls, notifications, registry writes or execution decisions live here.
+"""
+from __future__ import annotations
+
+from collections import OrderedDict
+from contextlib import closing
+import hashlib
+import json
+import logging
+import os
+from pathlib import Path
+import re
+import sqlite3
+import tempfile
+import threading
+import time
+
+LOG = logging.getLogger(__name__)
+TEXT_LIMIT = 8192
+HISTORY_LIMIT = 8
+MAX_BYTES = 131072
+MAX_TASKS = 32
+RETENTION_SECONDS = 7 * 86400
+_CONTROL = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]|[\x00-\x08\x0b-\x1f\x7f]")
+
+
+def clipped(value, limit=TEXT_LIMIT):
+    text = _CONTROL.sub("", value if isinstance(value, str) else "")
+    return text if len(text) <= limit else "[… wcześniejszy tekst pominięty …]\n" + text[-limit:]
+
+
+def text_content(message):
+    content = message.get("content", []) if isinstance(message, dict) else []
+    if isinstance(content, str):
+        return clipped(content)
+    return clipped("\n".join(clipped(item.get("text")) for item in content
+                             if isinstance(item, dict) and item.get("type") == "text"))
+
+
+def snapshot_path(directory, task_id):
+    return Path(directory) / (hashlib.sha256(task_id.encode()).hexdigest() + ".json")
+
+
+def load_snapshot(directory, task_id):
+    """Read only the bounded, redacted projection shared by all host views."""
+    try:
+        with snapshot_path(directory, task_id).open('rb') as stream:
+            raw = stream.read(MAX_BYTES + 1)
+        value = json.loads(raw) if len(raw) <= MAX_BYTES else {}
+        return value if isinstance(value, dict) and value.get('task_id') == task_id and value.get('schema') == 1 else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def activity_summary(data, limit=180):
+    text = data.get('text') or next((entry.get('text') for entry in reversed(data.get('entries', []))
+                                    if entry.get('kind') == 'assistant' and entry.get('text')), '')
+    text = ' '.join(clipped(text).split())
+    return text if len(text) <= limit else text[:limit - 1] + '…'
+
+
+class Projection:
+    """Pi 0.85 RPC: text deltas append; partial tool results are cumulative."""
+    def __init__(self, task_id):
+        self.data = {"schema": 1, "task_id": task_id, "seq": 0, "updated_at": None,
+                     "text": "", "text_id": None, "tool": None, "entries": [], "tools_completed": 0,
+                     "publication": {"state": "open", "seq": 0}}
+        self.blocks = {}
+        self.completed = set()
+        self.tool_names = OrderedDict()
+        self.message_open = False
+
+    def _begin_message(self):
+        self.blocks = {}
+        self.data["text"] = ""
+        self.data["text_id"] = f"message-{self.data['seq'] + 1}"
+        self.message_open = True
+
+    def _remember(self, entry):
+        if entry.get("text") or entry.get("kind") == "tool":
+            self.data["entries"] = (self.data["entries"] + [
+                {**entry, "text": clipped(entry.get("text"), 1024)}])[-HISTORY_LIMIT:]
+
+    def apply(self, event, now):
+        kind = event.get("type")
+        if kind == "message_start" and event.get("message", {}).get("role") == "assistant":
+            self._begin_message()
+        elif kind == "message_update":
+            update = event.get("assistantMessageEvent") or {}
+            index = str(update.get("contentIndex", 0))[:12]
+            if update.get("type") not in ("text_start", "text_delta", "text_end"):
+                return False  # Thinking and tool arguments are not the display stream.
+            if not self.message_open:
+                self._begin_message()
+            if len(self.blocks) >= 16 and index not in self.blocks:
+                return False
+            if update["type"] == "text_start":
+                self.blocks[index] = ""
+            elif update["type"] == "text_delta":
+                self.blocks[index] = clipped(self.blocks.get(index, "") + clipped(update.get("delta")))
+            else:
+                self.blocks[index] = clipped(update.get("content"))
+            self.data["text"] = clipped("\n".join(self.blocks.values()))
+        elif kind == "message_end" and event.get("message", {}).get("role") == "assistant":
+            if not self.message_open:
+                self._begin_message()
+            self.data["text"] = text_content(event["message"])
+            self._remember({"kind": "assistant", "id": self.data["text_id"], "text": self.data["text"]})
+            self.message_open = False
+        elif kind == "tool_execution_start":
+            tool_id = clipped(event.get("toolCallId"), 128)
+            if not tool_id or tool_id in self.completed:
+                return False
+            name = clipped(event.get("toolName"), 80)
+            self.tool_names[tool_id] = name
+            if len(self.tool_names) > 256:
+                self.tool_names.popitem(last=False)
+            self.data["tool"] = {"id": tool_id, "name": name, "text": ""}
+        elif kind in ("tool_execution_update", "tool_execution_end"):
+            tool_id = clipped(event.get("toolCallId"), 128)
+            tool = self.data["tool"]
+            current = tool is not None and tool["id"] == tool_id
+            if tool_id not in self.tool_names or tool_id in self.completed:
+                return False
+            if kind.endswith("update") and not current:
+                return False  # Only the foreground tool's cumulative output is streamed.
+            result = event.get("partialResult" if kind.endswith("update") else "result", {})
+            text = text_content(result)  # Replace; Pi sends cumulative output.
+            if current:
+                tool["text"] = text
+            if kind.endswith("end"):
+                # Pi can read several files in parallel. Every known completion
+                # counts, but an older tool must not erase a newer live output.
+                name = self.tool_names.pop(tool_id)
+                self.data["tools_completed"] += 1
+                self.completed.add(tool_id)
+                if len(self.completed) > 256:
+                    self.completed = {tool_id}
+                self._remember({"id": tool_id, "name": name, "text": text,
+                                "kind": "tool", "error": bool(event.get("isError"))})
+                if current:
+                    pending = next(reversed(self.tool_names), None)
+                    self.data["tool"] = ({"id": pending, "name": self.tool_names[pending], "text": ""}
+                                         if pending else None)
+        elif kind not in ("agent_start", "agent_end", "agent_settled"):
+            return False
+        self.data["seq"] += 1
+        self.data["updated_at"] = now
+        # Any new visible state reopens the stream: a viewer that already saw
+        # "complete" must resume instead of rendering a stale final version.
+        self.data["publication"] = {"state": "open", "seq": self.data["seq"]}
+        return True
+
+    def mark_final(self):
+        self.data["publication"] = {"state": "complete", "seq": self.data["seq"]}
+
+
+class ActivityRecorder:
+    def __init__(self, directory, *, interval=0.5, redact=lambda text: text):
+        try:
+            from .live_transcript import TranscriptRecorder
+        except ImportError:
+            from live_transcript import TranscriptRecorder
+        self.directory = Path(directory)
+        self.interval, self.redact = interval, redact
+        self._transcripts = TranscriptRecorder(self.directory.parent / 'cli-transcripts', redact)
+        self._lock = threading.Lock()
+        self._tasks = OrderedDict()
+        self._dirty = set()
+        self._stop = threading.Event()
+        self._thread = None
+
+    def observe(self, task_id, event):
+        with self._lock:
+            if self._stop.is_set():
+                return
+            if task_id not in self._tasks:
+                if len(self._tasks) >= MAX_TASKS:
+                    old, _ = self._tasks.popitem(last=False)
+                    self._dirty.discard(old)
+                self._tasks[task_id] = Projection(task_id)
+            self._tasks.move_to_end(task_id)
+            if self._tasks[task_id].apply(event, time.time()):
+                self._dirty.add(task_id)
+            try:
+                self._transcripts.observe(task_id, event, time.time())
+            except Exception:
+                LOG.warning('Pi live transcript rejected an event', exc_info=True)
+            if self._thread is None:
+                self._thread = threading.Thread(target=self._run, name="pi-activity", daemon=True)
+                self._thread.start()
+
+    def finalize(self, task_id):
+        """Mark this task's view stream as fully published.
+
+        Only flips the marker; the payload (snapshot + log tail) is written by
+        the next flush, so "complete" is never advertised before the data it
+        covers is on disk. A later observed event bumps seq and reopens the
+        stream.
+        """
+        with self._lock:
+            if self._stop.is_set():
+                return
+            projection = self._tasks.get(task_id)
+            if projection is None:
+                return
+            projection.mark_final()
+            self._dirty.add(task_id)
+            try:
+                self._transcripts.finalize(task_id)
+            except Exception:
+                LOG.warning('Pi live transcript could not be finalized', exc_info=True)
+
+    def note(self, task_id, text):
+        with self._lock:
+            if not self._stop.is_set():
+                self._transcripts.note(task_id, text, time.time())
+                if self._thread is None:
+                    self._thread = threading.Thread(target=self._run, name="pi-activity", daemon=True)
+                    self._thread.start()
+
+    def _run(self):
+        delay = self.interval
+        while not self._stop.wait(delay):
+            failed = self.flush()
+            # Bounded exponential backoff on repeated write failures; a
+            # retained dirty key is retried, never dropped.
+            delay = min(self.interval * 64, delay * 2) if failed else self.interval
+
+    def flush(self) -> int:
+        """Publish dirty snapshots; returns the number of failed writes.
+
+        A failed write keeps its task dirty (only the exact version that was
+        written is discarded), so the next flush retries with the NEWEST
+        state: a newer version always wins over a lost one.
+        """
+        failed = self._transcripts.flush()
+        with self._lock:
+            pending = [(key, json.loads(json.dumps(self._tasks[key].data))) for key in sorted(self._dirty)]
+        for task_id, data in pending:
+            tmp = None
+            try:
+                data["text"] = self.redact(data["text"])
+                if data["tool"]:
+                    data["tool"]["text"] = self.redact(data["tool"]["text"])
+                for entry in data["entries"]:
+                    entry["text"] = self.redact(entry["text"])
+                encoded = json.dumps(data, ensure_ascii=False).encode()
+                if len(encoded) > MAX_BYTES:
+                    raise ValueError("activity snapshot exceeds display bound")
+                self.directory.mkdir(parents=True, exist_ok=True, mode=0o700)
+                with tempfile.NamedTemporaryFile(dir=self.directory, prefix=".activity-", delete=False) as stream:
+                    tmp = Path(stream.name)  # mkstemp creates 0600, including after replacement.
+                    stream.write(encoded)
+                os.replace(tmp, snapshot_path(self.directory, task_id))
+            except Exception:
+                LOG.warning("Pi live view could not publish a snapshot", exc_info=True)
+                failed += 1
+            else:
+                with self._lock:
+                    current = self._tasks.get(task_id)
+                    if current is not None and current.data["seq"] == data["seq"]:
+                        self._dirty.discard(task_id)
+            finally:
+                if tmp is not None:
+                    tmp.unlink(missing_ok=True)
+        if pending:
+            self._prune()
+        return failed
+
+    def _prune(self):
+        try:
+            cutoff = time.time() - RETENTION_SECONDS
+            files = sorted(self.directory.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+            for index, path in enumerate(files):
+                if re.fullmatch(r"[a-f0-9]{64}\.json", path.name) and (
+                        index >= 256 or path.stat().st_mtime < cutoff):
+                    path.unlink(missing_ok=True)
+        except OSError:
+            pass
+
+    def close(self):
+        self._stop.set()
+        if self._thread and self._thread is not threading.current_thread():
+            self._thread.join(timeout=2)
+        self.flush()
+
+
+def _readonly(path):
+    conn = sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro", uri=True, timeout=0.5)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA query_only = ON")
+    return conn
+
+
+def same_conversation(home, origin_id, requested_id):
+    if origin_id and origin_id == requested_id:
+        return True
+    # Only follow published compression continuations, never branches/delegates.
+    try:
+        with closing(_readonly(Path(home) / "state.db")) as conn:
+            current = origin_id
+            for _ in range(64):
+                row = conn.execute("SELECT ended_at, end_reason FROM sessions WHERE id=?", (current,)).fetchone()
+                if not row or row["ended_at"] is None or row["end_reason"] != "compression":
+                    return False
+                children = conn.execute(
+                    "SELECT id FROM sessions WHERE parent_session_id=? AND COALESCE(source,'')!='tool' "
+                    "AND COALESCE(json_extract(COALESCE(model_config,'{}'),'$._branched_from'),'')!=? "
+                    "AND COALESCE(json_extract(COALESCE(model_config,'{}'),'$._delegate_from'),'')!=? LIMIT 2",
+                    (current, current, current)).fetchall()
+                if len(children) != 1:
+                    return False
+                current = children[0]["id"]
+                if current == requested_id:
+                    return True
+    except (OSError, sqlite3.Error):
+        pass
+    return False
+
+
+def read_activity(home, task_id, session_id):
+    """Read-only, session-scoped view; absent and foreign tasks look identical."""
+    home = Path(home).resolve()
+    directory = home / "state" / "pi-manager"
+    with closing(_readonly(directory / "registry.sqlite3")) as conn:
+        row = conn.execute(
+            "SELECT task_id, origin, execution_state, verification_state, active_tool, "
+            "started_at, last_event_at, wake_state FROM tasks WHERE task_id=?", (task_id,)).fetchone()
+    if row is None:
+        raise KeyError(task_id)
+    origin = json.loads(row["origin"] or "{}")
+    parent = origin.get("session_id") or origin.get("session_key")
+    if (not (origin.get("ui_session_id") or origin.get("source") in ("desktop", "tui"))
+            or not parent or not same_conversation(home, parent, session_id)
+            or (origin.get("hermes_home") and Path(origin["hermes_home"]).resolve() != home)):
+        raise KeyError(task_id)
+    result = {key: row[key] for key in row.keys() if key != "origin"}
+    result.update(session_id=session_id, activity=None)
+    try:
+        path = snapshot_path(directory / "activity", task_id)
+        with path.open("rb") as stream:
+            raw = stream.read(MAX_BYTES + 1)
+        if len(raw) <= MAX_BYTES:
+            data = json.loads(raw)
+            if data.get("schema") == 1 and data.get("task_id") == task_id:
+                result["activity"] = data
+    except (OSError, ValueError, TypeError):
+        pass
+    return result

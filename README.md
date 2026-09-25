@@ -1,16 +1,22 @@
-# furtak.dev — generated deployment
+# furtak.dev — publication and public references
 
-This repository contains the prerendered deployment of Kamil Furtak's portfolio,
-not the editable Angular application. Do not hand-edit generated HTML or bundles:
-the source publisher replaces this output on deployment.
+This repository publishes the prerendered portfolio and the public reference
+snapshots at [furtak.dev](https://furtak.dev/). The maintained library remains
+[ng-openlayers](https://github.com/kamilfurtak/ng-openlayers).
 
-- Website: https://furtak.dev/
-- Public work samples: https://github.com/kamilfurtak
-- Contact: https://linkedin.com/in/kamilfurtak
+- [Angular UI workbench](https://furtak.dev/angular-ui-modernization-case-study/)
+- [Identity integration walkthrough](https://furtak.dev/epuap-login-gov-integration-portfolio/)
+- [Source snapshots, licenses and archived downloads](https://github.com/kamilfurtak/kamilfurtak.github.io/tree/main/reference-sources)
+- [Contact](https://linkedin.com/in/kamilfurtak)
 
-The private source owner is `portfolio-lab-monorepo/cv/furtak-dev`.
-Its publisher builds and validates indexability before updating this repository.
-Automated publication uses a deploy key scoped to this repository, rather than
-a personal account token.
-Source code for the public Angular workbench lives separately in
-[angular-ui-modernization-case-study](https://github.com/kamilfurtak/angular-ui-modernization-case-study).
+The editable portfolio source is maintained separately in the private
+`portfolio-lab-monorepo/cv/furtak-dev` archive. Its publisher builds and validates
+indexability, updates the portfolio output and preserves `reference-sources/`,
+`angular-ui-modernization-case-study/` and
+`epuap-login-gov-integration-portfolio/`. Keep those paths when republishing.
+Update the editable portfolio source before regenerating its HTML and bundles.
+
+The public snapshots retain their licenses and original commit IDs in
+`reference-sources/snapshots.json`. They are references, not newly accepted
+application releases or a promise to maintain the archived tools. Complete
+repository histories and private experiments are preserved separately.

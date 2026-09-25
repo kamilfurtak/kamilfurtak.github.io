@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Architecture Notes | ePUAP / login.gov Integration Portfolio</title>
+    <meta
+      name="description"
+      content="Architecture notes for an ePUAP / login.gov identity integration portfolio case study."
+    />
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark" aria-hidden="true">KF</span>
+        <span>Integration Portfolio</span>
+      </a>
+      <nav aria-label="Case study navigation">
+        <a href="../index.html">Overview</a>
+        <a href="stack-comparison.html">Stack</a>
+      </nav>
+    </header>
+
+    <main class="doc-page">
+      <section class="doc-hero">
+        <p class="section-kicker">Architecture notes</p>
+        <h1>How the integration lab is structured.</h1>
+        <p>
+          A structured view of the system shape: Angular as an inspection
+          client, parallel backend prototypes, identity protocol flows and
+          Java/SOAP integration work. The notes focus on responsibilities,
+          contracts, validation concerns and stack tradeoffs.
+        </p>
+      </section>
+
+      <section class="doc-section">
+        <h2>High-Level Flow</h2>
+        <div class="doc-diagram" aria-label="Architecture flow">
+          <div>Angular client</div>
+          <span></span>
+          <div>NestJS API</div>
+          <div>.NET API</div>
+          <span></span>
+          <div>SAML + certificates</div>
+          <span></span>
+          <div>Java / SOAP track</div>
+        </div>
+      </section>
+
+      <section class="doc-section doc-grid">
+        <article>
+          <h2>Angular Client</h2>
+          <p>
+            The Angular application acts as a visible harness for triggering
+            authentication and API calls, comparing responses and making callback
+            and error paths easier to inspect.
+          </p>
+        </article>
+        <article>
+          <h2>NestJS / Node.js API</h2>
+          <p>
+            The Node lane explores controller and service structure, SAML-style
+            login/callback endpoints, DTOs and Swagger documentation.
+          </p>
+        </article>
+        <article>
+          <h2>ASP.NET Core / .NET API</h2>
+          <p>
+            The .NET lane covers API controllers, request/response DTOs,
+            Swagger/OpenAPI generation and certificate-aware processing helpers.
+          </p>
+        </article>
+        <article>
+          <h2>Java / Spring Client</h2>
+          <p>
+            The Java lane focuses on JAX-WS, Apache CXF, WSDL-generated models,
+            XML security, signing utilities and OpenSAML-oriented flows.
+          </p>
+        </article>
+      </section>
+
+      <section class="doc-section">
+        <h2>Integration Responsibilities</h2>
+        <div class="comparison-table" role="table" aria-label="Integration responsibilities">
+          <div role="row">
+            <strong role="columnheader">Area</strong>
+            <strong role="columnheader">Technical concern</strong>
+            <strong role="columnheader">Portfolio evidence</strong>
+          </div>
+          <div role="row">
+            <span>Browser to API</span>
+            <span>Triggering login flows, observing redirects, callback states and typed responses.</span>
+            <span>Angular harness, response previews and visible error-state handling.</span>
+          </div>
+          <div role="row">
+            <span>API to identity protocol</span>
+            <span>SAML-style request generation, callback handling, artifact correlation and response interpretation.</span>
+            <span>Architecture flow, responsibility split and validation-focused discussion.</span>
+          </div>
+          <div role="row">
+            <span>API to contract layer</span>
+            <span>DTO contracts, Swagger/OpenAPI schemas and generated TypeScript models.</span>
+            <span>Contract-first description of frontend/backend agreement.</span>
+          </div>
+          <div role="row">
+            <span>Java to SOAP/WSDL</span>
+            <span>Generated service models, CXF/JAX-WS clients, XMLSec and signing-oriented utilities.</span>
+            <span>Stack comparison and service-client responsibility split.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="doc-section doc-grid">
+        <article>
+          <h2>Validation Surface</h2>
+          <p>
+            The lab is framed around observable integration behavior: generated
+            contracts, typed API responses, callback handling, protocol error
+            separation, certificate-aware processing and service-client validation
+            checks.
+          </p>
+        </article>
+        <article>
+          <h2>Failure Modes Considered</h2>
+          <p>
+            Typical risk areas include schema drift between API and frontend
+            types, invalid callback state, artifact mismatch, expired or missing
+            certificate material, XML canonicalization issues and SOAP client
+            generation drift.
+          </p>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

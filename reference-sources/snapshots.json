@@ -1,0 +1,38 @@
+[
+  {
+    "name": "angular-ui-modernization-case-study",
+    "original_public_repository": "https://github.com/kamilfurtak/angular-ui-modernization-case-study",
+    "commit": "467eed55ab026cb36b78e439ed914ae629736319",
+    "files": 32
+  },
+  {
+    "name": "epuap-login-gov-integration-portfolio",
+    "original_public_repository": "https://github.com/kamilfurtak/epuap-login-gov-integration-portfolio",
+    "commit": "103648a76a72e188fee561925108cb57713c6ebb",
+    "files": 15
+  },
+  {
+    "name": "local-model-bridge",
+    "original_public_repository": "https://github.com/kamilfurtak/local-model-bridge",
+    "commit": "39a9c3daa41e13e6ec4b802a876e89ab318addf5",
+    "files": 17
+  },
+  {
+    "name": "ngrx-developer",
+    "original_public_repository": "https://github.com/kamilfurtak/ngrx-developer",
+    "commit": "8b05cec41213b558b5793f0a013458afc2a5f0fd",
+    "files": 167
+  },
+  {
+    "name": "hermes-pi-manager",
+    "original_public_repository": "https://github.com/kamilfurtak/hermes-pi-manager",
+    "commit": "ff7c2b4c564de7b039dd97ba48caac69b54725eb",
+    "files": 77
+  },
+  {
+    "name": "stackblitz-starters-amwibo",
+    "original_public_repository": "https://github.com/kamilfurtak/stackblitz-starters-amwibo",
+    "commit": "4f3d8eec624a302ac2ec1603a94de9ae24731d90",
+    "files": 11
+  }
+]

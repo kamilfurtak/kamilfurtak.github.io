@@ -1,0 +1,214 @@
+<header class="topbar">
+  <a href="https://furtak.dev/"
+    >Kamil Furtak <span>/ Engineering samples</span></a
+  ><a href="https://github.com/kamilfurtak/angular-ui-modernization-case-study"
+    >Source & decisions ↗</a
+  >
+</header>
+<main id="main">
+  <section class="intro">
+    <p class="eyebrow">ANGULAR · UI MODERNIZATION</p>
+    <h1>Change the renderer.<br /><span>Keep the workflow.</span></h1>
+    <p class="lead">
+      One case queue, two table adapters. Filters, selection and draft state
+      stay with the feature — not the component library.
+    </p>
+    <p class="boundary">
+      Independent implementation · Synthetic data · No production services
+    </p>
+  </section>
+  <section class="workbench" aria-labelledby="workbench-title">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">INTERACTIVE EXAMPLE</p>
+        <h2 id="workbench-title">Operations workbench</h2>
+      </div>
+      <div class="adapter" role="group" aria-label="Table renderer">
+        <button
+          [attr.aria-pressed]="adapter() === 'native'"
+          (click)="adapter.set('native')"
+        >
+          Native table</button
+        ><button
+          [attr.aria-pressed]="adapter() === 'prime'"
+          (click)="adapter.set('prime')"
+        >
+          PrimeNG table
+        </button>
+      </div>
+    </div>
+    <div class="filters">
+      <label
+        >Search cases<input
+          #search
+          type="search"
+          placeholder="Subject, case ID or team"
+          [value]="store.query().text"
+          (input)="store.filter({ text: search.value })"
+      /></label>
+      <label
+        >Status<select
+          #status
+          [value]="store.query().status"
+          (change)="filterStatus(status.value)"
+        >
+          <option value="all">All statuses</option>
+          <option>New</option>
+          <option>Review</option>
+          <option>Ready</option>
+        </select></label
+      >
+      <button (click)="store.filter({ text: '', status: 'all' })">
+        Clear filters</button
+      ><span class="spacer"></span>
+      <button [disabled]="store.loading()" (click)="store.reload(true)">
+        Simulate failure</button
+      ><button [disabled]="store.loading()" (click)="store.reload()">
+        Reload fixtures
+      </button>
+    </div>
+    @if (store.error()) {
+    <div class="alert" role="alert">
+      {{ store.error() }} <button (click)="store.reload()">Retry</button>
+    </div>
+    }
+    <div class="workspace-grid">
+      <section
+        class="queue"
+        aria-label="Queue results"
+        [attr.aria-busy]="store.loading()"
+      >
+        <div class="result-summary" role="status">
+          <span
+            >{{ store.loading() ? 'Loading fixtures…' : store.visible().length +
+            ' cases shown' }}</span
+          ><span
+            >{{ store.selected().size }} selected · {{ store.hiddenSelected() }}
+            hidden by filters</span
+          >
+        </div>
+        @if (adapter() === 'native') {
+        <app-native-grid
+          [rows]="store.visible()"
+          [selected]="store.selected()"
+          [query]="store.query()"
+          (toggle)="store.toggle($event)"
+          (focusCase)="store.focusedId.set($event)"
+          (sort)="store.sortBy($event)"
+        />
+        } @else { @defer (on immediate) {
+        <app-prime-grid
+          [rows]="store.visible()"
+          [selected]="store.selected()"
+          [query]="store.query()"
+          (toggle)="store.toggle($event)"
+          (focusCase)="store.focusedId.set($event)"
+          (sort)="store.sortBy($event)"
+        />
+        } @placeholder {
+        <p role="status">Loading PrimeNG renderer…</p>
+        } }
+        <p class="table-hint">
+          Choose a case ID for context. Switch renderers after sorting or
+          selecting rows — the state should not reset.
+        </p>
+      </section>
+      <aside class="detail" aria-label="Case context and draft">
+        <h3>Case context</h3>
+        @if (store.focused(); as row) {
+        <p class="case-heading">
+          {{ row.id }}
+          <span class="status" [attr.data-status]="row.status"
+            >{{ row.status }}</span
+          >
+        </p>
+        <p>{{ row.title }}</p>
+        <p class="muted">{{ row.team }} · {{ row.days }} days in queue</p>
+        } @else {
+        <p class="muted">
+          Choose a case ID to inspect it. Selection and context are separate
+          concerns.
+        </p>
+        }
+        <hr />
+        <h3>Working note</h3>
+        <p class="muted">
+          One local workbench draft, not a case submission. Never enter
+          sensitive information in this demo.
+        </p>
+        <form [formGroup]="form" (ngSubmit)="saveDraft()" novalidate>
+          <label
+            >Draft owner<input
+              formControlName="owner"
+              maxlength="80"
+              aria-describedby="owner-error"
+              [attr.aria-invalid]="form.controls.owner.touched && form.controls.owner.invalid"
+          /></label>
+          @if (form.controls.owner.touched && form.controls.owner.invalid) {
+          <p class="field-error" id="owner-error">
+            Enter a name (up to 80 characters).
+          </p>
+          }
+          <label
+            >Priority<select formControlName="priority">
+              <option>Normal</option>
+              <option>High</option>
+            </select></label
+          >
+          <label
+            >Note<textarea
+              formControlName="note"
+              rows="3"
+              maxlength="500"
+              aria-describedby="note-error"
+              [attr.aria-invalid]="form.controls.note.touched && form.controls.note.invalid"
+            ></textarea>
+          </label>
+          @if (form.controls.note.touched && form.controls.note.invalid) {
+          <p class="field-error" id="note-error">
+            Enter a note (up to 500 characters).
+          </p>
+          }
+          <button type="submit" class="primary">Save local draft</button>
+        </form>
+        @if (draftError()) {
+        <p class="field-error" role="alert">{{ draftError() }}</p>
+        }
+        <p class="save-status" role="status">{{ message() }}</p>
+      </aside>
+    </div>
+  </section>
+  <section class="decisions" aria-label="Architecture and limits">
+    <article>
+      <h3>State belongs to the feature</h3>
+      <p>
+        A small signal-based store owns the query, selected IDs and asynchronous
+        loading. Pure functions define filtering and sorting independently of
+        Angular or PrimeNG.
+      </p>
+    </article>
+    <article>
+      <h3>Adapters only render</h3>
+      <p>
+        Both tables consume the same typed rows and emit neutral intents.
+        PrimeNG is confined to its adapter. Replacing it does not change the
+        form or reset the queue.
+      </p>
+    </article>
+    <article>
+      <h3>Limits are explicit</h3>
+      <p>
+        Six synthetic records, an in-memory API and browser-local drafts. No
+        authentication, backend persistence, virtual scrolling or claim of
+        production-scale performance.
+      </p>
+    </article>
+  </section>
+</main>
+<footer>
+  Built by Kamil Furtak with AI-assisted implementation and review.
+  <a
+    href="https://github.com/kamilfurtak/angular-ui-modernization-case-study/tree/main/demo"
+    >Read the code and tests ↗</a
+  >
+</footer>

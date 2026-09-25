@@ -1,0 +1,20 @@
+name: pi-manager
+version: "0.3.0"
+description: "Durable Pi RPC tasks with stall recovery, separate verification, passive progress notices and one terminal continuation to the originating CLI, gateway or Desktop session. No blocking wait. Desktop uses its existing notice renderer and native prompt admission; no core patch."
+kind: standalone
+
+# Declared so `hermes plugins doctor` can check the manifest against what
+# register() actually adds — a tool that appears at runtime but not here is
+# exactly the drift the validator exists to catch.
+provides_tools:
+  - pi_task
+  - pi_status
+  - pi_digest
+  - pi_abort
+  - pi_steer
+  - pi_resume
+  - pi_verify
+
+# No hooks: this plugin observes Pi through its own RPC transport, not
+# through the agent's lifecycle events.
+provides_hooks: []

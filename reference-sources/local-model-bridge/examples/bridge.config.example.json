@@ -1,0 +1,27 @@
+{
+  "listen": { "host": "127.0.0.1", "port": 18003 },
+  "catalogFile": "models.generated.json",
+  "requestTimeoutMs": 1800000,
+  "localModels": [
+    {
+      "id": "my-omlx",
+      "displayName": "My oMLX model",
+      "baseUrl": "http://127.0.0.1:8000/v1",
+      "upstreamModel": "your-omlx-served-model-id",
+      "profile": "omlx",
+      "contextWindow": 32768,
+      "reasoningEfforts": ["low", "medium", "high", "xhigh"],
+      "defaultReasoning": "medium"
+    },
+    {
+      "id": "my-ninfer",
+      "displayName": "My NInfer model",
+      "baseUrl": "http://127.0.0.1:8080/v1",
+      "upstreamModel": "your-ninfer-served-model-id",
+      "profile": "ninfer",
+      "contextWindow": 32768,
+      "reasoningEfforts": ["low", "medium", "xhigh"],
+      "defaultReasoning": "low"
+    }
+  ]
+}

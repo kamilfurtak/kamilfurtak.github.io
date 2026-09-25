@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ePUAP / login.gov Integration Portfolio</title>
+    <meta
+      name="description"
+      content="A cross-stack identity integration portfolio case study showing work across Angular, NestJS, ASP.NET Core, Java/Spring, SAML, SOAP/WSDL, OpenAPI and certificates."
+    />
+    <meta name="theme-color" content="#f5f7fb" />
+    <meta property="og:title" content="ePUAP / login.gov Integration Portfolio" />
+    <meta
+      property="og:description"
+      content="Cross-stack identity integration case study: Angular, NestJS, .NET, Java/Spring, SAML, SOAP/WSDL, OpenAPI and certificate-aware workflows."
+    />
+    <meta property="og:image" content="assets/hero-integration-lab-branded.png" />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Go to top">
+        <span class="brand-mark" aria-hidden="true">KF</span>
+        <span>Integration Portfolio</span>
+      </a>
+      <nav aria-label="Page sections">
+        <a href="#stack">Stack</a>
+        <a href="#technical-depth">Depth</a>
+        <a href="#proof">Proof</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#decisions">Decisions</a>
+        <a href="#evidence">Evidence</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <img
+          class="hero-media"
+          src="assets/hero-integration-lab-branded.png"
+          alt="Abstract secure integration architecture with service panels, documents, certificates, connected identity nodes, an ePUAP login.gov badge and a furtak.dev watermark."
+        />
+        <div class="hero-shade" aria-hidden="true"></div>
+        <div class="hero-branding" aria-label="Portfolio branding">
+          <div class="hero-badge">
+            <span class="badge-icon" aria-hidden="true"></span>
+            <span>ePUAP / login.gov</span>
+          </div>
+          <div class="hero-watermark">
+            <span class="watermark-icon" aria-hidden="true"></span>
+            <span>furtak.dev</span>
+          </div>
+        </div>
+        <div class="hero-copy">
+          <p class="eyebrow">Identity integration case study</p>
+          <h1 id="hero-title">ePUAP / login.gov Integration Portfolio</h1>
+          <p class="hero-lede">
+            A cross-stack identity integration lab focused on protocol workflows:
+            SAML request/callback handling, artifact-oriented resolution,
+            certificate-aware processing, SOAP/WSDL service clients, OpenAPI
+            contracts and typed frontend/backend handoffs.
+          </p>
+          <div class="hero-actions" aria-label="Primary links">
+            <a class="button primary" href="#architecture">Explore architecture</a>
+            <a class="button secondary" href="docs/stack-comparison.html">Stack comparison</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section intro" aria-labelledby="public-scope-title">
+        <div><p class="section-kicker">Public scope</p><h2 id="public-scope-title">Architecture walkthrough, not a live identity service.</h2></div>
+        <div class="intro-copy"><p>This static site explains prototype tracks. It does not include executable Angular/backend implementations, certificates or access to login.gov/ePUAP. Images and diagrams are explanatory material, not production-verification evidence.</p><p>No certification, service-provider approval, successful production authentication or operator endorsement is claimed. The focus is frontend integration, contract analysis and engineering decisions; security correctness requires separate implementation review and testing.</p></div>
+      </section>
+
+      <section class="signal-strip" aria-label="Portfolio signals">
+        <article>
+          <strong>4 runtime tracks</strong>
+          <span>Angular, Node/NestJS, .NET 8 and Java/Spring</span>
+        </article>
+        <article>
+          <strong>Identity protocols</strong>
+          <span>AuthnRequest, callbacks, artifacts and response validation</span>
+        </article>
+        <article>
+          <strong>Contract thinking</strong>
+          <span>Swagger/OpenAPI schemas, DTO contracts and generated models</span>
+        </article>
+        <article>
+          <strong>Security-aware work</strong>
+          <span>Certificate validity, XML signatures and protocol validation</span>
+        </article>
+      </section>
+
+      <section class="section intro" aria-labelledby="intro-title">
+        <div>
+          <p class="section-kicker">Why this portfolio exists</p>
+          <h2 id="intro-title">Not a frontend-only story.</h2>
+        </div>
+        <div class="intro-copy">
+          <p>
+            The project presents a recruiter-friendly identity integration case
+            study built around a realistic engineering scenario: browser-level
+            flow inspection, backend API design, identity protocol research,
+            generated service clients, contract generation and certificate-heavy
+            troubleshooting.
+          </p>
+          <p>
+            The goal is to show how I reason across the whole integration path
+            when an Angular application touches older enterprise and public-sector
+            systems: redirects, signed XML, generated DTOs, SOAP service models,
+            callback handling and protocol-level failures.
+          </p>
+        </div>
+      </section>
+
+      <section id="stack" class="section" aria-labelledby="stack-title">
+        <div class="section-heading">
+          <p class="section-kicker">Technology map</p>
+          <h2 id="stack-title">A broader stack, presented as one system.</h2>
+        </div>
+
+        <div class="stack-grid">
+          <article class="stack-card accent-emerald">
+            <span class="stack-label">Client</span>
+            <h3>Angular + TypeScript</h3>
+            <p>
+              Browser harness for initiating login flows, inspecting redirected
+              states, rendering typed API responses and making callback/error
+              behavior visible during cross-stack experiments.
+            </p>
+          </article>
+          <article class="stack-card accent-cyan">
+            <span class="stack-label">Node lane</span>
+            <h3>NestJS API</h3>
+            <p>
+              TypeScript backend lane for controller/service structure, SAML-style
+              endpoint shape, DTO modeling, Swagger documentation and comparison
+              against the frontend contract surface.
+            </p>
+          </article>
+          <article class="stack-card accent-blue">
+            <span class="stack-label">.NET lane</span>
+            <h3>ASP.NET Core / .NET 8</h3>
+            <p>
+              C# backend lane for typed controllers, request/response DTOs,
+              OpenAPI generation, certificate-aware processing helpers and
+              SAML request/response handling experiments.
+            </p>
+          </article>
+          <article class="stack-card accent-amber">
+            <span class="stack-label">Java lane</span>
+            <h3>Java / Spring + CXF</h3>
+            <p>
+              Enterprise integration lane for JAX-WS/CXF clients, WSDL-generated
+              models, XMLSec/OpenSAML-oriented flows, signing utilities and
+              artifact-resolution research.
+            </p>
+          </article>
+          <article class="stack-card accent-graphite">
+            <span class="stack-label">Identity</span>
+            <h3>SAML, certificates, XML</h3>
+            <p>
+              AuthnRequest construction, callback handling, artifact correlation,
+              XML signing, canonicalization concerns, certificate validity and
+              protocol validation.
+            </p>
+          </article>
+          <article class="stack-card accent-rose">
+            <span class="stack-label">Contracts</span>
+            <h3>SOAP/WSDL + OpenAPI</h3>
+            <p>
+              SOAP service descriptions, generated Java models, Swagger visibility,
+              OpenAPI schemas and generated TypeScript models used as typed
+              integration contracts.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="technical-depth" class="section technical-depth" aria-labelledby="technical-depth-title">
+        <div class="section-heading">
+          <p class="section-kicker">Technical depth</p>
+          <h2 id="technical-depth-title">The integration concerns behind the technology list.</h2>
+        </div>
+
+        <div class="technical-grid">
+          <article>
+            <h3>SAML flow mechanics</h3>
+            <p>
+              The lab models the moving parts around authentication request
+              generation, browser handoff, callback handling, artifact correlation
+              and response interpretation. The case study highlights the places
+              where identity integrations usually fail and how those failures
+              travel between browser, API and protocol layers.
+            </p>
+            <ul>
+              <li>request initiation and redirect/form handoff</li>
+              <li>callback state and correlation concerns</li>
+              <li>artifact-oriented response handling</li>
+            </ul>
+          </article>
+          <article>
+            <h3>XML and certificate concerns</h3>
+            <p>
+              The interesting work is not just calling an API. XML signatures,
+              canonicalization, certificate validity windows and protocol
+              checks can break otherwise correct application code, so the lab
+              treats them as first-class integration concerns.
+            </p>
+            <ul>
+              <li>signature and canonicalization awareness</li>
+              <li>certificate-aware request/response processing</li>
+              <li>validation flow design across identity callbacks</li>
+            </ul>
+          </article>
+          <article>
+            <h3>Generated contracts</h3>
+            <p>
+              Multiple backend tracks are useful only if the interfaces remain
+              visible. Swagger/OpenAPI and generated TypeScript models make
+              request and response shapes inspectable from Angular, while
+              WSDL-generated Java models cover the SOAP side of the lab.
+            </p>
+            <ul>
+              <li>OpenAPI schemas for API visibility</li>
+              <li>generated TypeScript frontend models</li>
+              <li>WSDL-generated service/client models</li>
+            </ul>
+          </article>
+          <article>
+            <h3>Failure-mode analysis</h3>
+            <p>
+              The case study highlights how integration failures surface across
+              layers: browser redirects can hide backend state, protocol errors
+              can look like application errors, and certificate/configuration
+              problems need a different debugging path than ordinary HTTP bugs.
+            </p>
+            <ul>
+              <li>redirect and callback visibility</li>
+              <li>protocol vs. application error separation</li>
+              <li>risk-area documentation for technical review</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="proof" class="section proof" aria-labelledby="proof-title">
+        <div class="section-heading">
+          <p class="section-kicker">What I built</p>
+          <h2 id="proof-title">Concrete artifacts behind the portfolio story.</h2>
+        </div>
+
+        <div class="proof-grid">
+          <article class="proof-card">
+            <span class="proof-index">01</span>
+            <h3>Browser-facing integration harness</h3>
+            <p>
+              A focused Angular client for triggering flows, inspecting backend
+              responses, previewing protocol handoffs and keeping callback/error
+              behavior visible during experiments.
+            </p>
+          </article>
+          <article class="proof-card">
+            <span class="proof-index">02</span>
+            <h3>Parallel backend prototypes</h3>
+            <p>
+              NestJS and ASP.NET Core tracks used to compare endpoint structure,
+              DTO design, OpenAPI output, SAML-style flow handling and
+              certificate-aware helper placement.
+            </p>
+          </article>
+          <article class="proof-card">
+            <span class="proof-index">03</span>
+            <h3>Java enterprise integration lane</h3>
+            <p>
+              Spring, JAX-WS, Apache CXF, XMLSec and OpenSAML-oriented research
+              for SOAP/WSDL clients, generated service models, signing utilities
+              and artifact-resolution style workflows.
+            </p>
+          </article>
+          <article class="proof-card">
+            <span class="proof-index">04</span>
+            <h3>Presentation-ready case study</h3>
+            <p>
+              A polished portfolio package that turns complex integration work
+              into a clear technical story for recruiters, hiring managers and
+              technical reviewers.
+            </p>
+          </article>
+        </div>
+
+        <div class="artifact-wall" aria-label="Mock integration workspace">
+          <div class="mock-window contract-window">
+            <div class="mock-titlebar">
+              <span></span>
+              <span></span>
+              <span></span>
+              <strong>openapi.contract</strong>
+            </div>
+            <div class="mock-lines">
+              <span style="--w: 76%"></span>
+              <span style="--w: 52%"></span>
+              <span style="--w: 68%"></span>
+              <span style="--w: 44%"></span>
+            </div>
+          </div>
+          <div class="mock-window saml-window">
+            <div class="mock-titlebar">
+              <span></span>
+              <span></span>
+              <span></span>
+              <strong>saml.flow</strong>
+            </div>
+            <div class="mini-flow">
+              <i>AuthnRequest</i>
+              <b></b>
+              <i>Artifact</i>
+              <b></b>
+              <i>Response</i>
+            </div>
+          </div>
+          <div class="mock-window certificate-window">
+            <div class="mock-titlebar">
+              <span></span>
+              <span></span>
+              <span></span>
+              <strong>protocol.validation</strong>
+            </div>
+            <div class="cert-chip">
+              <em></em>
+              <div>
+                <strong>Certificate-aware flow</strong>
+                <span>signing, validation, callbacks</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="architecture" class="section architecture" aria-labelledby="architecture-title">
+        <div class="section-heading">
+          <p class="section-kicker">Architecture view</p>
+          <h2 id="architecture-title">A lab designed to compare implementation paths.</h2>
+        </div>
+
+        <div class="flow" aria-label="Integration architecture diagram">
+          <div class="flow-column">
+            <span>Angular client</span>
+            <strong>Trigger and inspect</strong>
+            <p>Login actions, redirects, API calls, typed responses and callback states.</p>
+          </div>
+          <div class="flow-connector" aria-hidden="true"></div>
+          <div class="flow-column split">
+            <div>
+              <span>NestJS API</span>
+              <strong>Node prototype</strong>
+            </div>
+            <div>
+              <span>.NET API</span>
+              <strong>C# prototype</strong>
+            </div>
+          </div>
+          <div class="flow-connector" aria-hidden="true"></div>
+          <div class="flow-column">
+            <span>Identity core</span>
+            <strong>SAML and certificates</strong>
+            <p>AuthnRequest, callback, artifact correlation, XML signatures and certificate checks.</p>
+          </div>
+          <div class="flow-connector" aria-hidden="true"></div>
+          <div class="flow-column">
+            <span>Java services</span>
+            <strong>SOAP/WSDL track</strong>
+            <p>CXF clients, generated models and document-service interfaces.</p>
+          </div>
+        </div>
+
+        <div class="architecture-links">
+          <a href="docs/architecture.html">Read architecture notes</a>
+          <a href="docs/stack-comparison.html">Read stack comparison</a>
+        </div>
+      </section>
+
+      <section id="decisions" class="section decisions" aria-labelledby="decisions-title">
+        <div class="section-heading">
+          <p class="section-kicker">Design decisions</p>
+          <h2 id="decisions-title">The engineering choices behind the lab.</h2>
+        </div>
+
+        <div class="decision-list">
+          <article>
+            <span>01</span>
+            <div>
+              <h3>Use Angular as an inspection surface, not just a UI layer</h3>
+              <p>
+                Authentication and document workflows are easiest to reason about
+                when browser-side behavior is visible: redirects, generated
+                handoff forms, callback timing, typed API responses and error
+                states can be inspected from the same place where users
+                experience the flow.
+              </p>
+            </div>
+          </article>
+          <article>
+            <span>02</span>
+            <div>
+              <h3>Compare backend tracks instead of forcing one default stack</h3>
+              <p>
+                SAML, SOAP/WSDL and certificate-heavy work has different tooling
+                strengths across Node, .NET and Java. Keeping the tracks separate
+                made it possible to compare library support, XML/security tooling,
+                generated-contract workflows, debugging ergonomics and long-term
+                maintainability without hiding the tradeoffs.
+              </p>
+            </div>
+          </article>
+          <article>
+            <span>03</span>
+            <div>
+              <h3>Keep contracts visible between frontend and backend</h3>
+              <p>
+                Swagger/OpenAPI and generated TypeScript models reduce ambiguity
+                when several runtime stacks need to agree on request and response
+                shapes. The contract layer becomes the shared language between
+                Angular screens, Node/.NET APIs and service-client experiments.
+              </p>
+            </div>
+          </article>
+          <article>
+            <span>04</span>
+            <div>
+              <h3>Translate complex integration work into a clear portfolio story</h3>
+              <p>
+                The case study connects architecture, tradeoffs, validation
+                concerns and runtime choices into a narrative that is readable
+                for recruiters while still giving technical reviewers enough
+                substance for a deeper conversation.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="evidence" class="section evidence" aria-labelledby="evidence-title">
+        <div class="section-heading">
+          <p class="section-kicker">Recruiter evidence</p>
+          <h2 id="evidence-title">What this case study should make obvious.</h2>
+        </div>
+
+        <div class="evidence-layout">
+          <article class="evidence-panel">
+            <h3>Backend literacy without losing frontend focus</h3>
+            <p>
+              The Angular client stays part of the story, but the visible work
+              moves through API design, protocol flows, service clients and
+              generated contracts.
+            </p>
+          </article>
+          <article class="evidence-panel">
+            <h3>Comfort with difficult integration surfaces</h3>
+            <p>
+              SAML, SOAP, XML signatures and certificates require careful
+              debugging habits. The portfolio frames those constraints in a way
+              that is understandable for both engineering and recruitment
+              conversations.
+            </p>
+          </article>
+          <article class="evidence-panel">
+            <h3>Comparative engineering judgment</h3>
+            <p>
+              Running Node, .NET and Java tracks side by side creates a concrete
+              basis for discussing tradeoffs instead of presenting a single
+              technology as the default answer.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section timeline" aria-labelledby="timeline-title">
+        <div class="section-heading">
+          <p class="section-kicker">Integration path</p>
+          <h2 id="timeline-title">From browser flow to verified service integration.</h2>
+        </div>
+
+        <ol class="timeline-list">
+          <li>
+            <span>01</span>
+            <div>
+              <h3>Map the integration path</h3>
+              <p>
+                Identify where browser flows, API endpoints, certificates,
+                callbacks and external identity services meet.
+              </p>
+            </div>
+          </li>
+          <li>
+            <span>02</span>
+            <div>
+              <h3>Prototype across stacks</h3>
+              <p>
+                Compare NestJS, ASP.NET Core and Java/Spring approaches without
+                forcing every experiment into one backend.
+              </p>
+            </div>
+          </li>
+          <li>
+            <span>03</span>
+            <div>
+              <h3>Keep contracts visible</h3>
+              <p>
+                Use Swagger/OpenAPI and generated TypeScript contracts to make
+                frontend/backend agreement inspectable.
+              </p>
+            </div>
+          </li>
+          <li>
+            <span>04</span>
+            <div>
+              <h3>Package the case study for technical review</h3>
+              <p>
+                Present architecture, decisions, technology tradeoffs and
+                validation concerns in a clean visual format that supports a
+                focused interview or client conversation.
+              </p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="section impact" aria-labelledby="impact-title">
+        <div class="section-heading">
+          <p class="section-kicker">Project value</p>
+          <h2 id="impact-title">Practical value for teams working with complex integrations.</h2>
+        </div>
+        <div class="impact-panel">
+          <div>
+            <h3>Cross-team vocabulary</h3>
+            <p>
+              The project translates backend identity concerns into frontend-visible
+              behavior: redirects, callback timing, typed responses, service
+              failures and certificate-related edge cases become easier to discuss.
+            </p>
+          </div>
+          <div>
+            <h3>Pragmatic stack evaluation</h3>
+            <p>
+              Keeping Node, .NET and Java lanes visible makes technology choices
+              less theoretical. Each stack is evaluated against protocol support,
+              generated contracts, debugging ergonomics and maintainability.
+            </p>
+          </div>
+          <div>
+            <h3>Technical communication</h3>
+            <p>
+              The case study turns a difficult integration area into a clear,
+              visual and technically grounded portfolio piece that supports
+              recruitment, client conversations and deeper engineering review.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        Portfolio artifact for cross-stack identity integration work.
+      </p>
+      <a href="#top">Back to top</a>
+    </footer>
+  </body>
+</html>
